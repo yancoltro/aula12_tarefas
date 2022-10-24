@@ -1,4 +1,6 @@
 import 'package:aula12_tarefas/bloc/todo_bloc.dart';
+import 'package:aula12_tarefas/bloc/todo_events.dart';
+import 'package:aula12_tarefas/bloc/todo_state.dart';
 import 'package:aula12_tarefas/models/todo.dart';
 import 'package:aula12_tarefas/screens/todo.dart';
 import 'package:flutter/material.dart';
@@ -9,18 +11,17 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late TodoBloc todoBloc;
-  late List<Todo> todos = [];
+  TodoBloc bloc = TodoBloc();
 
   @override
   void initState() {
-    todoBloc = TodoBloc();
+    bloc.sink.add(ListTodoEvent());
     super.initState();
   }
 
   @override
   void dispose() {
-    todoBloc.dispose();
+    bloc.sink.close();
     super.dispose();
   }
 
@@ -28,31 +29,32 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     // _testDb();
     Todo todo = Todo("", "", "", 0);
-    todos = todoBloc.todoList;
 
     return Scaffold(
       appBar: AppBar(
         title: Text("Lista de Tarefas"),
       ),
       body: Container(
-        child: StreamBuilder<List<Todo>>(
-          stream: todoBloc.todos,
-          initialData: todos,
-          builder: (BuildContext context, AsyncSnapshot snapshot) {
+        child: StreamBuilder<TodoState>(
+          stream: bloc.stream,
+          // initialData: ,
+          builder: (BuildContext context, AsyncSnapshot<TodoState> snapshot) {
+            List<Todo> todos =
+                snapshot.data != null ? snapshot.data!.todos : [];
             return ListView.builder(
-              itemCount: (snapshot.hasData) ? snapshot.data.length : 0,
+              itemCount: todos.length,
               itemBuilder: (context, index) {
                 return Dismissible(
-                  key: Key(snapshot.data[index].id.toString()),
+                  key: Key(todos[index].id.toString()),
                   onDismissed: (obj) =>
-                      todoBloc.todoDeleteSink.add(snapshot.data[index]),
+                      bloc.sink.add(DeleteTodoEvent(todos[index])),
                   child: ListTile(
                     leading: CircleAvatar(
                       backgroundColor: Theme.of(context).highlightColor,
-                      child: Text("${snapshot.data[index].priority}"),
+                      child: Text("${todos[index].priority}"),
                     ),
-                    title: Text("${snapshot.data[index].name}"),
-                    subtitle: Text("${snapshot.data[index].description}"),
+                    title: Text("${todos[index].name}"),
+                    subtitle: Text("${todos[index].description}"),
                     trailing: IconButton(
                       icon: Icon(Icons.edit),
                       onPressed: () {
@@ -60,7 +62,7 @@ class _HomePageState extends State<HomePage> {
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
-                                  TodoPage(snapshot.data[index], false)),
+                                  TodoPage(todos[index], false)),
                         );
                       },
                     ),

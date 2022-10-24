@@ -1,4 +1,5 @@
 import 'package:aula12_tarefas/bloc/todo_bloc.dart';
+import 'package:aula12_tarefas/bloc/todo_events.dart';
 import 'package:aula12_tarefas/models/todo.dart';
 import 'package:aula12_tarefas/screens/home.dart';
 import 'package:flutter/material.dart';
@@ -35,24 +36,21 @@ class TodoPage extends StatelessWidget {
             padding: EdgeInsets.all(10),
             child: TextField(
               controller: txtName,
-              decoration:
-                  InputDecoration( hintText: "Nome"),
+              decoration: InputDecoration(hintText: "Nome"),
             ),
           ),
           Padding(
             padding: EdgeInsets.all(10),
             child: TextField(
               controller: txtDescription,
-              decoration: InputDecoration(
-                   hintText: "Descrição"),
+              decoration: InputDecoration(hintText: "Descrição"),
             ),
           ),
           Padding(
             padding: EdgeInsets.all(10),
             child: TextField(
               controller: txtCompleteBy,
-              decoration: InputDecoration(
-                   hintText: "Completar até"),
+              decoration: InputDecoration(hintText: "Completar até"),
             ),
           ),
           Padding(
@@ -60,8 +58,7 @@ class TodoPage extends StatelessWidget {
             child: TextField(
               controller: txtPriority,
               keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                   hintText: "Prioridade"),
+              decoration: InputDecoration(hintText: "Prioridade"),
             ),
           ),
           Padding(
@@ -88,9 +85,9 @@ class TodoPage extends StatelessWidget {
     todo.completeBy = txtCompleteBy.text;
     todo.priority = int.tryParse(txtPriority.text)!;
     if (isNew) {
-      bloc.todoInsertSink.add(todo);
+      bloc.sink.add(InsertTodoEvent(todo));
     } else {
-      bloc.todoUpdateSink.add(todo);
+      bloc.sink.add(UpdateTodoEvent(todo));
     }
   }
 }

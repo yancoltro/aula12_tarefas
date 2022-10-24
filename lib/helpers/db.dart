@@ -35,36 +35,6 @@ class DB {
     return db;
   }
 
-  Future insertTodo(Todo todo) async {
-    await store.add(_database!, todo.toMap());
-  }
+  
 
-  Future updateTodo(Todo todo) async {
-    final finder =
-        Finder(filter: Filter.byKey(todo.id)); // realizara a busca no banco
-    await store.update(_database!, todo.toMap(), finder: finder);
-  }
-
-  Future deleteTodo(Todo todo) async {
-    final finder = Finder(filter: Filter.byKey(todo.id));
-    await store.delete(_database!, finder: finder);
-  }
-
-  Future<List<Todo>> getTodos() async {
-    await database;
-    final finder = Finder(sortOrders: [
-      SortOrder('priority'),
-      SortOrder('id'),
-    ]);
-    final todosSnapshot = await store.find(_database!, finder: finder);
-    return todosSnapshot.map((snapshot) {
-      final todo = Todo.fromMap(snapshot.value);
-      todo.id = snapshot.key;
-      return todo;
-    }).toList();
-  }
-
-  Future deleteAll() async {
-    await store.delete(_database!);
-  }
 }
